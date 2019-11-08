@@ -1,3 +1,12 @@
+#
+# Author: Jamey Johnston
+# Title: Code Like a Snake Charmer: Advanced Data Modeling in Python!
+# Date: 2019/11/08
+# Blog: http://www.STATCowboy.com
+# Twitter: @STATCowboy
+# Git Repo: https://github.com/STATCowboy/SnakeCharmer-Adv
+#
+
 import pandas as pd 
 import numpy as np
 import seaborn as sns

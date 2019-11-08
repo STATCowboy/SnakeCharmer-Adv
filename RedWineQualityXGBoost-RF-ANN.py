@@ -1,6 +1,15 @@
-# Train XGBoost model for Detecting Wine Quality
+#
+# Author: Jamey Johnston
+# Title: Code Like a Snake Charmer: Advanced Data Modeling in Python!
+# Date: 2019/11/08
+# Blog: http://www.STATCowboy.com
+# Twitter: @STATCowboy
+# Git Repo: https://github.com/STATCowboy/SnakeCharmer-Adv
+#
+
+# Train models for Detecting Wine Quality
 # Save model to file using pickle
-# Load model and make predictions and validation set
+# Load model and make predictions
 #
 
 # Import OS and set CWD
@@ -105,7 +114,7 @@ import graphviz
 
 # Install steps for it to work (on Windows)
 # 1. Install windows package from: http://www.graphviz.org/Download_windows.php
-# 2. Install python graphviz package
+# 2. Install python graphviz package (use pip)
 # 3. Add C:\Program Files (x86)\Graphviz2.38\bin to User path
 
 dot_data = tree.export_graphviz(wineTree, out_file=None)
@@ -115,6 +124,9 @@ graph.render(os.path.join(APP_ROOT, 'wineTree.gv'), view=False)
 # 
 # Predict Wine Quality with ANN in Tensorflow/Keras
 #
+# http://cs231n.github.io/neural-networks-1/
+# https://www.tensorflow.org/tutorials/keras/regression
+
 
 # Import `StandardScaler` from `sklearn.preprocessing`
 from sklearn.preprocessing import StandardScaler
