@@ -1,0 +1,6 @@
+# Export current conda environment (be sure activate env first - "conda activate <env_name>")
+conda env export > summit2019.yml
+
+# Note the file is exported sometimes as UTF-16 and will error on create
+# You can convert file encoding to UTF-8 in Visual Studio Code
+conda env create -f summit2019.yml -n summit2019
