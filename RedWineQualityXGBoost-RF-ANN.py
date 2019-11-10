@@ -43,25 +43,12 @@ seed = 7
 test_size = 0.3
 X_train, X_valid, y_train, y_valid = model_selection.train_test_split(X, Y, test_size=test_size, random_state=seed)
 
-# Fit model on Wine Training Data and save model to Pickle file
+# Fit model on Wine Training Data using eXtendeded Gradient Boosting
 modelXGB = xgboost.XGBClassifier()
 modelXGB.fit(X_train, y_train)
-# save model to file
-pickle.dump(modelXGB, open("winequality-red.pickleXGB.dat", "wb"))
-
-
-# Fit model on Wine Training Data and save model to Pickle file
-modelRF = RandomForestRegressor()
-modelRF.fit(X_train, y_train)
-# save model to file
-pickle.dump(modelRF, open("winequality-red.pickleRF.dat", "wb"))
-
-
-# Load model from Pickle file
-loaded_modelXGB = pickle.load(open("winequality-red.pickleXGB.dat", "rb"))
 
 # Make predictions for Validation data
-y_predXGB = loaded_modelXGB.predict(X_valid)
+y_predXGB = modelXGB.predict(X_valid)
 predictionsXGB = [round(value) for value in y_predXGB]
 
 # Evaluate predictions
@@ -72,12 +59,12 @@ print("Accuracy of eXtended Gradient Boosting: %.2f%%" % (accuracyXGB * 100.0))
 predictionResultXGB = column_stack(([X_valid, vstack(y_valid), vstack(y_predXGB)]))
 
 
-
-# Load model from Pickle file
-loaded_modelRF = pickle.load(open("winequality-red.pickleXGB.dat", "rb"))
+# Fit model on Wine Training Data using Random Forest save model to Pickle file
+modelRF = RandomForestRegressor()
+modelRF.fit(X_train, y_train)
 
 # Make predictions for Validation data
-y_predRF = loaded_modelRF.predict(X_valid)
+y_predRF = modelRF.predict(X_valid)
 predictionsRF = [round(value) for value in y_predRF]
 
 # Evaluate predictions
@@ -86,6 +73,16 @@ print("Accuracy of Random Forest: %.2f%%" % (accuracyRF * 100.0))
 
 # Create Dataset with Prediction and Inputs
 predictionResultRF = column_stack(([X_valid, vstack(y_valid), vstack(y_predRF)]))
+
+# save model to file
+pickle.dump(modelRF, open("winequality-red.pickleRF.dat", "wb"))
+
+# Load model from Pickle file
+loaded_modelRF = pickle.load(open("winequality-red.pickleRF.dat", "rb"))
+
+# Predict a Wine Quality (Class) from inputs
+loaded_modelRF.predict([[6.8, .47, .08, 2.2, .0064, 18.0, 38.0, .999933, 3.2, .64, 9.8, ]])
+
 
 
 #
@@ -121,6 +118,8 @@ dot_data = tree.export_graphviz(wineTree, out_file=None)
 graph = graphviz.Source(dot_data)
 graph.render(os.path.join(APP_ROOT, 'wineTree.gv'), view=False)
 
+
+
 # 
 # Predict Wine Quality with ANN in Tensorflow/Keras
 #
@@ -151,7 +150,9 @@ kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
 
 for train, test in kfold.split(X, Y):
     model = Sequential()
-    model.add(Dense(16, input_dim=11, activation='relu'))
+    model.add(Dense(32, input_dim=11, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(16, activation='relu'))
     model.add(Dropout(0.2))
     model.add(Dense(8, activation='relu'))
     model.add(Dropout(0.2))
@@ -167,6 +168,11 @@ mse_value, mae_value = model.evaluate(X[test], Y[test], verbose=0)
 print(mse_value)
 print(mae_value)
 
+# Evaluate predictions
+accuracyANN = accuracy_score(Y[test], y_pred.round(0))
+print("Accuracy of Tensorflow ANN: %.2f%%" % (accuracyANN * 100.0))
+
+
 from sklearn.metrics import r2_score
 
 r2_score(Y[test], y_pred.round(0))
@@ -178,7 +184,5 @@ print(score)
 Y[test][:15]
 y_pred[:15].round(0)
 # y_pred[:15]
-
-
 
 compareY = column_stack([X[test], vstack(Y[test]), vstack(y_pred.round(0))])

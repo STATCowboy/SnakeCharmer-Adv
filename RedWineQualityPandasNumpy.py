@@ -7,21 +7,19 @@
 # Git Repo: https://github.com/STATCowboy/SnakeCharmer-Adv
 #
 
+import os
 import pandas as pd 
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from settings import APP_ROOT
 
-# Import OS and set CWD
-import os
-# cd = os.getcwd()
-cd = "c:/Users/jj/OneDrive/documents/SQL Server/SQL Summit 2019/Python Presentation - Advanced/"
 
 # Pandas
 #
 
 # Load the Wine Data using Pandas
-winePD = pd.read_csv(cd+"/winequality-red.csv", sep=';')
+winePD = pd.read_csv(os.path.join(APP_ROOT, "winequality-red.csv"), sep=';')
 print(type(winePD))
 
 # Print info on wine
@@ -69,7 +67,7 @@ winePD.groupby('quality').mean()
 pd.pivot_table(winePD, columns='quality', aggfunc="mean")
 
 # Bring in white wine data to concat to red
-winePDwhite = pd.read_csv(cd+"/winequality-white.csv", sep=';')
+winePDwhite = pd.read_csv(os.path.join(APP_ROOT, "winequality-white.csv"), sep=';')
 
 # Concat for Union of Dataframes
 pd.concat([winePD, winePDwhite])
@@ -114,7 +112,7 @@ plt.show()
 # 
 
 # Load the Wine Data using NumPy
-wineNP = np.loadtxt(cd+"winequality-red.csv", delimiter=';', skiprows=1)
+wineNP = np.loadtxt(os.path.join(APP_ROOT, "winequality-red.csv"), delimiter=';', skiprows=1)
 print(type(wineNP))
 
 # Slice the wine data into X (independent variable) and y (dependent variable)
