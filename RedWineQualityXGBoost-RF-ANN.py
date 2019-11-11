@@ -35,8 +35,8 @@ dataset = np.loadtxt(os.path.join(APP_ROOT, "winequality-red.csv"), delimiter=';
 # "fixed acidity","volatile acidity","citric acid","residual sugar","chlorides","free sulfur dioxide","total sulfur dioxide","density","pH","sulphates","alcohol","quality"
 
 # Split the wine data into X (independent variable) and y (dependent variable)
-X = dataset[:, 0:11]
-Y = dataset[:, 11]
+X = dataset[:,0:11].astype(float)
+Y = dataset[:,11].astype(int)
 
 # Split wine data into train and validation sets
 seed = 7
@@ -136,6 +136,7 @@ X = StandardScaler().fit_transform(X)
 
 # Import `Sequential` from `keras.models`
 from keras.models import Sequential
+from keras.utils import np_utils
 
 # Import `Dense` from `keras.layers`
 from keras.layers import Dense, Conv1D, MaxPooling1D, SimpleRNN, Dropout
@@ -146,9 +147,12 @@ from sklearn.model_selection import StratifiedKFold
 seed = 7
 np.random.seed(seed)
 
+
 kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
 
 for train, test in kfold.split(X, Y):
+    dummy_y_train = np_utils.to_categorical(Y[train])
+    dummy_y_test = np_utils.to_categorical(Y[test])
     model = Sequential()
     model.add(Dense(32, input_dim=11, activation='relu'))
     model.add(Dropout(0.2))
@@ -156,33 +160,34 @@ for train, test in kfold.split(X, Y):
     model.add(Dropout(0.2))
     model.add(Dense(8, activation='relu'))
     model.add(Dropout(0.2))
-    model.add(Dense(1))
-    model.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
-    model.fit(X[train], Y[train], epochs=20, verbose=1)
+    model.add(Dense(Y.max() + 1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.fit(X[train], dummy_y_train, epochs=150, batch_size=10, verbose=1)
 
 
-y_pred = model.predict(X[test])
+print("input", model.input.name)
+print("output", model.output.name)
 
-mse_value, mae_value = model.evaluate(X[test], Y[test], verbose=0)
+print("Model's parameters")
+print(model.get_weights())
+
+mse_value, mae_value = model.evaluate(X[test], dummy_y_test, verbose=0)
 
 print(mse_value)
 print(mae_value)
 
+# evaluate the model
+scores = model.evaluate(X[train], dummy_y_train)
+print("Training \n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+
+y_pred = model.predict(X[test])
+
 # Evaluate predictions
-accuracyANN = accuracy_score(Y[test], y_pred.round(0))
-print("Accuracy of Tensorflow ANN: %.2f%%" % (accuracyANN * 100.0))
+accuracyANN = model.evaluate(X[test], dummy_y_test)
+print("Test \n%s: %.2f%%" % (model.metrics_names[1], accuracyANN[1]*100))
 
 
 from sklearn.metrics import r2_score
-
-r2_score(Y[test], y_pred.round(0))
-
-score = model.evaluate(X[test], Y[test],verbose=1)
-
+r2_score(dummy_y_test, y_pred)
+score = model.evaluate(X[test], dummy_y_test, verbose=1)
 print(score)
-
-Y[test][:15]
-y_pred[:15].round(0)
-# y_pred[:15]
-
-compareY = column_stack([X[test], vstack(Y[test]), vstack(y_pred.round(0))])
