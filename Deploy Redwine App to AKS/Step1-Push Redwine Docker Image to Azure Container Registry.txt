@@ -1,0 +1,25 @@
+REM Save Docker Image to Azure Container Registry to use in things like Azure Kubernetes Services or Azure Container Instance 
+REM 
+az login
+
+# Create Resource Group
+az group create --name sqlsatbrbiaksrg --location eastus
+
+# Create Container Registry
+az acr create --resource-group sqlsatbrbiaksrg --name sqlsatbrbiaksacr --sku Basic
+
+# Login to Container Registry
+az acr login --name sqlsatbrbiaksacr
+
+# Get ACR login server name
+az acr list --resource-group sqlsatbrbiaksrg --query "[].{acrLoginServer:loginServer}" --output table
+
+# Tag Local image to push to Azure Container Registry
+docker tag redwine sqlsatbrbiaksacr.azurecr.io/redwine:v1
+docker image ls
+
+# Push to Azure Container Registry
+docker push sqlsatbrbiaksacr.azurecr.io/redwine:v1
+
+# List Images in Azure Container Registry
+az acr repository list --name sqlsatbrbiaksacr --output table

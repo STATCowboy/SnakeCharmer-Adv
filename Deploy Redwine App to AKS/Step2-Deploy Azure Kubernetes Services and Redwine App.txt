@@ -1,0 +1,29 @@
+# Create AKS Cluster and attach ACR
+
+# Open Access to "OperationManagement"
+Register-AzureRmResourceProvider -ProviderNamespace "Microsoft.OperationalInsights"
+
+az aks create --resource-group sqlsatbrbiaksrg --name sqlsatbrbiakscluster --node-count 1 --enable-addons monitoring --generate-ssh-keys --attach-acr sqlsatbrbiaksacr
+
+# Configure ACR integration for existing AKS clusters (not needed as attached above)
+# az aks update -n sqlsatbrbiakscluster -g sqlsatbrbiaksrg --attach-acr sqlsatbrbiaksacr
+
+
+# Connect to Cluster
+#
+# Install CLI 
+az aks install-cli
+
+# Configure the Kubernetes CLI
+az aks get-credentials --resource-group sqlsatbrbiaksrg --name sqlsatbrbiakscluster
+
+# List Cluster Nodes
+kubectl get nodes
+
+# Deploy application
+kubectl apply -f redwine.yaml
+
+kubectl get service redwine -watch
+
+# Test App
+http://40.121.138.149:8080/winequality
